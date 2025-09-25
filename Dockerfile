@@ -1,5 +1,8 @@
 FROM tiangolo/nginx-rtmp:latest
 
+# Create the HLS directory that nginx needs
+RUN mkdir -p /var/www/html/hls
+
 # Create nginx config
 RUN echo 'events { worker_connections 1024; } \
 rtmp { \
