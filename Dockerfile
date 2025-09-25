@@ -1,13 +1,11 @@
 FROM tiangolo/nginx-rtmp:latest
 
-# Create the HLS directory that nginx needs
 RUN mkdir -p /var/www/html/hls
 
-# Create nginx config
 RUN echo 'events { worker_connections 1024; } \
 rtmp { \
     server { \
-        listen 1935; \
+        listen 80; \
         chunk_size 4096; \
         application live { \
             live on; \
@@ -21,7 +19,7 @@ rtmp { \
 http { \
     include /etc/nginx/mime.types; \
     server { \
-        listen 8888; \
+        listen 8080; \
         location /hls { \
             types { \
                 application/vnd.apple.mpegurl m3u8; \
@@ -31,8 +29,12 @@ http { \
             add_header Cache-Control no-cache; \
             add_header Access-Control-Allow-Origin *; \
         } \
+        location / { \
+            return 200 "RTMP Server - Stream to rtmp://this-url:80/live/streamname"; \
+            add_header Content-Type text/plain; \
+        } \
     } \
 }' > /etc/nginx/nginx.conf
 
-EXPOSE 1935 8888
+EXPOSE 80 8080
 CMD ["nginx", "-g", "daemon off;"]
